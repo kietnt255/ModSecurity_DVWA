@@ -7,6 +7,32 @@ if( !defined( 'DVWA_WEB_PAGE_TO_ROOT' ) ) {
 
 session_start(); // Creates a 'Full Path Disclosure' vuln.
 
+// DVWA Session Fix - Initialize all session variables to prevent undefined index errors
+if (!isset($_SESSION['session_token'])) {
+    $_SESSION['session_token'] = '';
+}
+if (!isset($_SESSION['security'])) {
+    $_SESSION['security'] = 'low';
+}
+if (!isset($_SESSION['last_login'])) {
+    $_SESSION['last_login'] = '';
+}
+if (!isset($_SESSION['failed_login'])) {
+    $_SESSION['failed_login'] = 0;
+}
+if (!isset($_SESSION['user_token'])) {
+    $_SESSION['user_token'] = '';
+}
+if (!isset($_SESSION['id'])) {
+    $_SESSION['id'] = '';
+}
+if (!isset($_SESSION['last_session_id'])) {
+    $_SESSION['last_session_id'] = 0;
+}
+if (!isset($_SESSION['last_session_id_high'])) {
+    $_SESSION['last_session_id_high'] = 0;
+}
+
 if (!file_exists(DVWA_WEB_PAGE_TO_ROOT . 'config/config.inc.php')) {
 	die ("DVWA System error - config file not found. Copy config/config.inc.php.dist to config/config.inc.php and configure to your environment.");
 }
@@ -525,6 +551,9 @@ function dvwaGuestbook() {
 
 // Token functions --
 function checkToken( $user_token, $session_token, $returnURL ) {  # Validate the given (CSRF) token
+	if (!isset($_SESSION['session_token'])) {
+		$_SESSION['session_token'] = '';
+	}
 	if( $user_token !== $session_token || !isset( $session_token ) ) {
 		dvwaMessagePush( 'CSRF token is incorrect' );
 		dvwaRedirect( $returnURL );
@@ -543,6 +572,9 @@ function destroySessionToken() {  # Destroy any session with the name 'session_t
 }
 
 function tokenField() {  # Return a field for the (CSRF) token
+	if (!isset($_SESSION['session_token'])) {
+		$_SESSION['session_token'] = '';
+	}
 	return "<input type='hidden' name='user_token' value='{$_SESSION[ 'session_token' ]}' />";
 }
 // -- END (Token functions)
